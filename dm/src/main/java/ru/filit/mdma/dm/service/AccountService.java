@@ -1,32 +1,26 @@
 package ru.filit.mdma.dm.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import ru.filit.mdma.dm.exception.WrongDataException;
 import ru.filit.mdma.dm.model.Account;
-import ru.filit.mdma.dm.model.AccountBalance;
-import ru.filit.mdma.dm.model.ClientLevel;
-import ru.filit.mdma.dm.model.Operation;
-import ru.filit.mdma.dm.web.dto.ClientLevelDto;
-import ru.filit.mdma.dm.web.dto.CurrentBalanceDto;
 
-import java.io.File;
-import java.util.Date;
+import java.net.URL;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
 public class AccountService {
 
-    private final String accountsFileName ="src/main/resources/datafiles/accounts.yml";
-    private File accountsFile;
 
-    private final String balancesFileName ="datafiles/balances.yml";
-    private File balancesFile;
+    private final URL accountsFileUrl ;
 
-    public AccountService(){
-        this.accountsFile=new File(accountsFileName);
-        this.balancesFile=new File(balancesFileName);
+    private final URL balancesFileUrl;
+
+    public AccountService(@Value("${datafiles.accounts}") String accountsFileName, @Value("${datafiles.accounts}") String balancesFileName){
+        this.accountsFileUrl = getClass().getClassLoader().getResource(accountsFileName);
+        this.balancesFileUrl = getClass().getClassLoader().getResource(balancesFileName);
     }
 
     @Autowired
@@ -36,7 +30,7 @@ public class AccountService {
     private OperationService operationService;
 
     public List<Account> getAccounts(String clientId) throws WrongDataException {
-        List<Account> accounts = yamlService.readYaml(accountsFile, Account.class);
+        List<Account> accounts = yamlService.readYaml(accountsFileUrl, Account.class);
         return accounts.stream().filter(a->a.getClientId().equals(clientId)).collect(Collectors.toList());
     }
 

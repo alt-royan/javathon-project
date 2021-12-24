@@ -1,6 +1,7 @@
 package ru.filit.mdma.dm.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import ru.filit.mdma.dm.exception.WrongDataException;
 import ru.filit.mdma.dm.model.Client;
@@ -8,6 +9,7 @@ import ru.filit.mdma.dm.web.dto.ClientSearchDto;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -18,20 +20,20 @@ public class ClientService {
     @Autowired
     private YamlService yamlService;
 
-    private final String filename ="src/main/resources/datafiles/clients.yml";
-    private File file;
+    private final URL clientsFileUrl;
 
-    public ClientService(){
-        this.file=new File(filename);
+    public ClientService(@Value("${datafiles.clients}") String clientsFileName){
+        this.clientsFileUrl = getClass().getClassLoader().getResource(clientsFileName);
     }
 
+
     public Client findClientById(String id) throws WrongDataException {
-        List<Client> clients =yamlService.readYaml(file, Client.class);
+        List<Client> clients =yamlService.readYaml(clientsFileUrl, Client.class);
         return clients.stream().filter((c)-> Objects.equals(c.getId(), id)).findFirst().orElseThrow(()->new NullPointerException("No client with id:"+id));
     }
 
     public List<Client> findClients(ClientSearchDto client) throws WrongDataException {
-        List<Client> clients =yamlService.readYaml(file, Client.class);
+        List<Client> clients =yamlService.readYaml(clientsFileUrl, Client.class);
         return clients.stream().filter((c)->{
             boolean b=true;
             if(client.getId()!=null) b=b && (Objects.equals(client.getId(), c.getId()));

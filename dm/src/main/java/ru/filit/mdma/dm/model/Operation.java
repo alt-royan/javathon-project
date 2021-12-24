@@ -1,16 +1,14 @@
 package ru.filit.mdma.dm.model;
 
 import java.io.Serializable;
-import java.util.Objects;
-import com.fasterxml.jackson.annotation.JsonProperty;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.math.BigDecimal;
-import javax.validation.Valid;
 import javax.validation.constraints.*;
 
 /**
@@ -18,6 +16,7 @@ import javax.validation.constraints.*;
  */
 @ApiModel(description = "Банковские операции по счету")
 @Data
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Operation implements Serializable {
 
   public enum TypeEnum {
@@ -52,12 +51,16 @@ public class Operation implements Serializable {
     }
   }
 
+  @NotNull
   private TypeEnum type;
 
+  @NotNull
   private String accountNumber;
 
+  @NotNull
   private Long operDate;
 
+  @NotNull
   private BigDecimal amount;
 
   private String description;

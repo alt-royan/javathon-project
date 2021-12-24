@@ -3,8 +3,9 @@ package ru.filit.mdma.dm.web.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.annotations.ApiModel;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import ru.filit.mdma.dm.model.Client;
 
 import javax.validation.constraints.NotNull;
@@ -14,8 +15,8 @@ import java.util.Date;
 /**
  * Клиент банка, Физ. лицо
  */
-@ApiModel(description = "Клиент банка, Физ. лицо")
-@Data
+@Getter
+@Setter
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ClientDto   {
 
@@ -39,7 +40,7 @@ public class ClientDto   {
 
   private String address;
 
-  public static ClientDto fromClient(Client client){
+  public static ClientDto fromEntity(Client client){
     ClientDto clientDto =new ClientDto();
     clientDto.setId(client.getId());
     clientDto.setLastname(client.getLastname());

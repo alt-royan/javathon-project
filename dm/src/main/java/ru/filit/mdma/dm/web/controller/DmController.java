@@ -28,7 +28,7 @@ public class DmController {
 
     @PostMapping("/client")
     public Stream<ClientDto> searchClients(@RequestBody ClientSearchDto clientSearchDto) throws WrongDataException {
-        return clientService.findClients(clientSearchDto).stream().map(ClientDto::fromClient);
+        return clientService.findClients(clientSearchDto).stream().map(ClientDto::fromEntity);
     }
 
     @PostMapping("/client/contact")
@@ -38,6 +38,7 @@ public class DmController {
 
     @PostMapping("/client/account")
     public List<Account> searchAccounts(@RequestBody ClientIdDto id) throws WrongDataException {
+        contactService.saveContact(new ContactDto("9999999", "777777", Contact.TypeEnum.PHONE, "+79164600073","0073"));
         return accountService.getAccounts(id.getClientId());
     }
 

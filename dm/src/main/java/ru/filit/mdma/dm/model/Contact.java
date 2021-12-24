@@ -1,29 +1,26 @@
 package ru.filit.mdma.dm.model;
 
 import java.io.Serializable;
-import java.util.Objects;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import ru.filit.mdma.dm.web.dto.ContactDto;
 
-import javax.validation.Valid;
 import javax.validation.constraints.*;
 
 /**
  * Контактные данные клиента
  */
-@ApiModel(description = "Контактные данные клиента")
 @Data
 public class Contact  implements Serializable {
 
+  @NotNull
   private String id;
 
+  @NotNull
   private String clientId;
 
+  @NotNull
   public enum TypeEnum {
     PHONE("PHONE"),
     
@@ -56,8 +53,10 @@ public class Contact  implements Serializable {
     }
   }
 
+  @NotNull
   private TypeEnum type;
 
+  @NotNull
   private String value;
 
   public static Contact fromDto(ContactDto contactDto){

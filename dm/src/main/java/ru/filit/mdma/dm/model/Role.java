@@ -1,6 +1,8 @@
 package ru.filit.mdma.dm.model;
 
+import com.fasterxml.jackson.annotation.JsonValue;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 
 public enum Role {
   
@@ -16,6 +18,7 @@ public enum Role {
     this.value = value;
   }
 
+  @JsonValue
   public String getValue() {
     return value;
   }
@@ -25,6 +28,7 @@ public enum Role {
     return String.valueOf(value);
   }
 
+  @JsonCreator
   public static Role fromValue(String value) {
     for (Role b : Role.values()) {
       if (b.value.equals(value)) {

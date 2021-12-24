@@ -1,8 +1,8 @@
 package ru.filit.mdma.dm.web.dto;
 
 
-import io.swagger.annotations.ApiModel;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.validation.constraints.NotNull;
 
@@ -10,10 +10,11 @@ import javax.validation.constraints.NotNull;
 /**
  * Запрос по clientId
  */
-@ApiModel(description = "Запрос по clientId")
-@Data
+@Getter
+@Setter
 public class ClientIdDto   {
 
+  @NotNull
   private String clientId;
 
 }
