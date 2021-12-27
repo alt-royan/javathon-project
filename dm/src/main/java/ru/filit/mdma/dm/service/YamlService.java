@@ -18,21 +18,12 @@ public class YamlService {
 
     private final ObjectMapper objectMapper=new ObjectMapper(new YAMLFactory().disable(YAMLGenerator.Feature.WRITE_DOC_START_MARKER)).findAndRegisterModules();
 
-     public <T> List<T> readYaml(URL url, Class<T> clazz) throws WrongDataException {
+     public <T> List<T> readYaml(URL url, Class<T> clazz) throws IOException {
          CollectionType listType = objectMapper.getTypeFactory().constructCollectionType(List.class, clazz);
-         try {
-             return objectMapper.readValue(url, listType);
-         } catch (IOException e) {
-             e.printStackTrace();
-             throw new WrongDataException("Wrong data");
-         }
+         return objectMapper.readValue(url, listType);
      }
 
-    public<T> void writeYaml(URL url, List<T> list) throws WrongDataException {
-        try {
-            objectMapper.writeValue(new File(url.getPath()), list);
-        } catch (IOException e) {
-            throw new WrongDataException("Wrong data");
-        }
+    public<T> void writeYaml(URL url, List<T> list) throws IOException {
+         objectMapper.writeValue(new File(url.getPath()), list);
     }
 }

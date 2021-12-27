@@ -5,8 +5,16 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import ru.filit.mdma.dm.exception.WrongDataException;
 import ru.filit.mdma.dm.model.Account;
+import ru.filit.mdma.dm.model.AccountBalance;
+import ru.filit.mdma.dm.model.ClientLevel;
+import ru.filit.mdma.dm.model.Operation;
 
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.net.URL;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,37 +37,84 @@ public class AccountService {
     @Autowired
     private OperationService operationService;
 
-    public List<Account> getAccounts(String clientId) throws WrongDataException {
+    public List<Account> getAccounts(String clientId) throws IOException {
         List<Account> accounts = yamlService.readYaml(accountsFileUrl, Account.class);
         return accounts.stream().filter(a->a.getClientId().equals(clientId)).collect(Collectors.toList());
     }
 
-    /*public CurrentBalanceDto getBalance(String accountNumber, Date date) throws WrongDataException {
-        CurrentBalanceDto currentBalanceDto=new CurrentBalanceDto();
-        List<Operation> operations =operationService.getOperations(accountNumber);
-        List<AccountBalance> balances =getBalances(accountNumber);
-        AccountBalance current = balances.stream().filter(b->
-            new Date(b.getBalanceDate()).getMonth() == date.getMonth()).findFirst().get();
-        for (Operation o:operations){
-            currentBalanceDto.setBalanceAmount(current.getAmount().add(o.getAmount()));
+    public Account getAccount(String accountNumber) throws IOException, WrongDataException {
+        List<Account> accounts = yamlService.readYaml(accountsFileUrl, Account.class);
+        return accounts.stream().filter(a->a.getNumber().equals(accountNumber)).findFirst().orElseThrow(()->new WrongDataException("No such account"));
+    }
+
+    public BigDecimal getBalance(String accountNumber, Date date) throws IOException, WrongDataException {
+        List<AccountBalance> balances = yamlService.readYaml(balancesFileUrl, AccountBalance.class);
+        Calendar c =Calendar.getInstance();
+        c.setTime(date);
+        AccountBalance currentMonthBalance =balances.stream().filter(b-> {
+            Calendar balanceDate= Calendar.getInstance();
+            balanceDate.setTimeInMillis(b.getBalanceDate());
+            return b.getAccountNumber().equals(accountNumber) &&
+                    c.get(Calendar.MONTH)==balanceDate.get(Calendar.MONTH);
+        }).findFirst().orElseThrow(()->new WrongDataException("Account number error"));
+        List<Operation> operations =operationService.getOperations(accountNumber, new Date(currentMonthBalance.getBalanceDate()), date);
+        BigDecimal currentBalance=currentMonthBalance.getAmount();
+        for(Operation operation: operations){
+            if(operation.getType()== Operation.TypeEnum.RECEIPT){
+                currentBalance=currentBalance.add(operation.getAmount());
+            }else if (operation.getType()== Operation.TypeEnum.EXPENSE){
+                currentBalance=currentBalance.subtract(operation.getAmount());
+            }
         }
-        return currentBalanceDto;
+        return currentBalance;
     }
 
-    private List<AccountBalance> getBalances(String accountNumber) throws WrongDataException {
-        List<AccountBalance> balances =yamlService.readYaml(balancesFile, AccountBalance.class);
-        List<AccountBalance> myBalances=balances.stream().filter(b->b.getAccountNumber().equals(accountNumber)).collect(Collectors.toList());
-        return myBalances;
+    public BigDecimal getCurrentBalance(String accountNumber) throws WrongDataException, IOException {
+        return  getBalance(accountNumber, new Date());
     }
 
-    public ClientLevelDto getClientLevel(String clientId) throws WrongDataException {
-        List<CurrentBalanceDto> balances = getAccounts(clientId);
+    public BigDecimal getSVO(String accountNumber) throws WrongDataException, IOException {
+        Account ac= getAccount(accountNumber);
+        Calendar c=Calendar.getInstance();
+        c.set(Calendar.HOUR, 23);
+        c.set(Calendar.MINUTE, 59);
+        int n=30;
+        if(c.getTimeInMillis()- ac.getOpenDate()< 1000L *60*60*24*30){
+            n = (int) ((c.getTimeInMillis()- ac.getOpenDate())/(1000L *60*60*24*30));
+        }
+        BigDecimal svo=new BigDecimal(0);
+        for (int i = 0; i < n; i++) {
+            svo=svo.add(getBalance(accountNumber, new Date(c.getTimeInMillis()-1000L *60*60*24*30*n)));
+        }
+        svo=svo.divide(new BigDecimal(n));
+        return svo;
     }
 
-    private ClientLevel svo(String accountNumber) throws WrongDataException {
-        for
-        getBalance(accountNumber);
-    }*/
-
+    public BigDecimal getOverdraft(String accountNumber) throws WrongDataException, IOException {
+        Account account=getAccount(accountNumber);
+        if(account.getType()!=Account.TypeEnum.OVERDRAFT) throw new WrongDataException("This account is not overdraft");
+        Date openDate =new Date(account.getOpenDate());
+        Calendar c=Calendar.getInstance();
+        c.setTime(openDate);
+        c.set(Calendar.HOUR, 23);
+        c.set(Calendar.MINUTE, 59);
+        BigDecimal percents=new BigDecimal(0);
+        int deferment= account.getDeferment();
+        while (c.getTimeInMillis()<=new Date().getTime()){
+            if(c.get(Calendar.DAY_OF_WEEK)!= Calendar.SATURDAY && c.get(Calendar.DAY_OF_WEEK)!= Calendar.SUNDAY){
+                BigDecimal currentBalance=getBalance(accountNumber, c.getTime());
+                if(currentBalance.compareTo(new BigDecimal(0)) ==-1){
+                    if(deferment==0) {
+                        percents = percents.add(currentBalance.abs().multiply(new BigDecimal("0.0007")).setScale(2, RoundingMode.HALF_UP));
+                    }else{
+                        deferment--;
+                    }
+                }else{
+                    deferment= account.getDeferment();
+                }
+            }
+        }
+        return percents;
+    }
 
 }
