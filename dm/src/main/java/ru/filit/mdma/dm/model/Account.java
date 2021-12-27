@@ -4,21 +4,22 @@ import java.io.Serializable;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonValue;
-import io.swagger.annotations.ApiModel;
 import lombok.Data;
 
-import javax.validation.constraints.*;
+import javax.validation.constraints.NotNull;
+
 
 /**
  * Банковские счета клиента
  */
-@ApiModel(description = "Банковские счета клиента")
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Account  implements Serializable {
 
+  @NotNull
   private String number;
 
+  @NotNull
   private String clientId;
 
 
@@ -58,6 +59,7 @@ public class Account  implements Serializable {
     }
   }
 
+  @NotNull
   private TypeEnum type;
 
   public enum CurrencyEnum {
@@ -90,6 +92,7 @@ public class Account  implements Serializable {
     }
   }
 
+  @NotNull
   private CurrencyEnum currency = CurrencyEnum.RUR;
 
 
@@ -129,8 +132,10 @@ public class Account  implements Serializable {
     }
   }
 
+  @NotNull
   private StatusEnum status;
 
+  @NotNull
   private Long openDate;
 
   private Long closeDate;

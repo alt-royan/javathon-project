@@ -1,12 +1,7 @@
 package ru.filit.mdma.dm.web.dto;
 
-
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import io.swagger.annotations.ApiModel;
-
-import lombok.Data;
-import ru.filit.mdma.dm.service.MoneySerializer;
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.validation.constraints.NotNull;
 
@@ -14,8 +9,8 @@ import javax.validation.constraints.NotNull;
 /**
  * Запрос операций по счету
  */
-@ApiModel(description = "Запрос операций по счету")
-@Data
+@Setter
+@Getter
 public class OperationSearchDto   {
 
   @NotNull
@@ -23,7 +18,6 @@ public class OperationSearchDto   {
 
 
   @NotNull
-  @JsonFormat(shape = JsonFormat.Shape.STRING)
   private Integer quantity;
 
 }

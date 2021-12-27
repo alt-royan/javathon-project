@@ -2,17 +2,18 @@ package ru.filit.mdma.dm.web.dto;
 
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import io.swagger.annotations.ApiModel;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-import java.text.DateFormat;
 import java.util.Date;
 
 
 /**
  * Параметры поиска клиентов
  */
-@ApiModel(description = "Параметры поиска клиентов")
+@Getter
+@Setter
 @Data
 public class ClientSearchDto   {
 

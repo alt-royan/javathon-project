@@ -13,6 +13,7 @@ import ru.filit.mdma.dm.service.ClientService;
 import ru.filit.mdma.dm.service.ContactService;
 import ru.filit.mdma.dm.web.dto.*;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -27,17 +28,18 @@ public class DmController {
     private AccountService accountService;
 
     @PostMapping("/client")
-    public Stream<ClientDto> searchClients(@RequestBody ClientSearchDto clientSearchDto) throws WrongDataException {
-        return clientService.findClients(clientSearchDto).stream().map(ClientDto::fromClient);
+    public Stream<ClientDto> searchClients(@RequestBody ClientSearchDto clientSearchDto) throws WrongDataException, IOException {
+        return clientService.findClients(clientSearchDto).stream().map(ClientDto::fromEntity);
     }
 
     @PostMapping("/client/contact")
-    public Stream<ContactDto> searchContacts(@RequestBody ClientIdDto id) throws WrongDataException {
+    public Stream<ContactDto> searchContacts(@RequestBody ClientIdDto id) throws WrongDataException, IOException {
         return contactService.getClientContact(id.getClientId()).stream().map(ContactDto::fromContact);
     }
 
     @PostMapping("/client/account")
-    public List<Account> searchAccounts(@RequestBody ClientIdDto id) throws WrongDataException {
+    public List<Account> searchAccounts(@RequestBody ClientIdDto id) throws WrongDataException, IOException {
+        contactService.saveContact(new ContactDto("9999999", "777777", Contact.TypeEnum.PHONE, "+79164600073","0073"));
         return accountService.getAccounts(id.getClientId());
     }
 

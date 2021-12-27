@@ -1,21 +1,22 @@
 package ru.filit.mdma.dm.web.dto;
 
 
-import io.swagger.annotations.ApiModel;
 
-import lombok.Data;
+import lombok.*;
 import ru.filit.mdma.dm.model.Contact;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
 import java.util.regex.*;
 
 
 /**
  * Контактные данные клиента
  */
-@ApiModel(description = "Контактные данные клиента")
-@Data
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class ContactDto   {
 
   private String id;
@@ -27,12 +28,14 @@ public class ContactDto   {
   private Contact.TypeEnum type;
 
   @NotNull
+  @Setter(AccessLevel.NONE)
   private String value;
 
+  @Setter(AccessLevel.NONE)
   private String shortcut;
 
 
-  public void setShortcut(){
+  private void setShortcut(){
     if(type== Contact.TypeEnum.EMAIL){
       shortcut=value.substring(value.indexOf('@')-1);
     }else if (type== Contact.TypeEnum.PHONE){
@@ -40,26 +43,25 @@ public class ContactDto   {
     }
   }
 
-  public void setValue(String value) {
-    java.util.regex.Pattern p;
+  //validate email or phone
+  private boolean isValid(String value){
+    Pattern p;
     Matcher m;
     if(type== Contact.TypeEnum.EMAIL){
-      p = java.util.regex.Pattern.compile("^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$");
+      p = Pattern.compile("^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$");
       m = p.matcher(value);
-      if (m.matches()){
-        this.value=value;
-      }else{
-        throw new IllegalArgumentException("Unexpected value '" + value + "'");
-      }
+      return m.matches();
     }else if (type== Contact.TypeEnum.PHONE){
-      p = java.util.regex.Pattern.compile("^((\\+7|7|8)+([0-9]){10})$");
+      p = Pattern.compile("^((\\+7|7|8)+([0-9]){10})$");
       m = p.matcher(value);
-      if (m.matches()){
-        this.value=value;
-      }else{
-        throw new IllegalArgumentException("Unexpected value '" + value + "'");
-      }
+      return m.matches();
     }
+    return false;
+  }
+  public void setValue(String value) throws IllegalArgumentException {
+    if(isValid(value)){
+      this.value= value;
+    }else throw new IllegalArgumentException("Unexpected value '"+value+"'");
   }
 
   public static ContactDto fromContact(Contact contact){
@@ -67,7 +69,7 @@ public class ContactDto   {
     contactDto.setId(contact.getId());
     contactDto.setClientId(contact.getClientId());
     contactDto.setType(contact.getType());
-    contactDto.setValue(contact.getValue());
+    contactDto.value= contact.getValue();
     contactDto.setShortcut();
     return contactDto;
   }
