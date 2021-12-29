@@ -64,7 +64,7 @@ public class ContactDto   {
     }else throw new IllegalArgumentException("Unexpected value '"+value+"'");
   }
 
-  public static ContactDto fromContact(Contact contact){
+  public static ContactDto fromEntity(Contact contact){
     ContactDto contactDto =new ContactDto();
     contactDto.setId(contact.getId());
     contactDto.setClientId(contact.getClientId());

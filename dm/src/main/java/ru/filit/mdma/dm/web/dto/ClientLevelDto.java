@@ -4,6 +4,7 @@ package ru.filit.mdma.dm.web.dto;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import ru.filit.mdma.dm.model.ClientLevel;
 import ru.filit.mdma.dm.service.MoneySerializer;
@@ -18,6 +19,7 @@ import java.math.BigDecimal;
 @Getter
 @Setter
 @AllArgsConstructor
+@NoArgsConstructor
 public class ClientLevelDto   {
 
   @NotNull

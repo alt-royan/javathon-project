@@ -34,11 +34,11 @@ public class OperationService {
     }
 
     public List<Operation> getOperations(String accountNumber, Date from) throws IOException {
-        return getAllOperations(accountNumber).stream().filter(o->new Date(o.getOperDate()).after(from)).collect(Collectors.toList());
+        return getAllOperations(accountNumber).stream().filter(o->new Date(o.getOperDate()*1000L).after(from)).collect(Collectors.toList());
     }
 
     public List<Operation> getOperations(String accountNumber, Date from, Date to) throws IOException {
-        return getAllOperations(accountNumber).stream().filter(o->new Date(o.getOperDate()).after(from) && new Date(o.getOperDate()).before(to)).collect(Collectors.toList());
+        return getAllOperations(accountNumber).stream().filter(o->new Date(o.getOperDate()*1000L).after(from) && new Date(o.getOperDate()*1000L).before(to)).collect(Collectors.toList());
     }
 
 }

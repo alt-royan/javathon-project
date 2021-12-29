@@ -54,8 +54,10 @@ public class AccountDto   {
     accountDto.setType(account.getType());
     accountDto.setCurrency(account.getCurrency());
     accountDto.setStatus(account.getStatus());
-    accountDto.setCloseDate(new Date(account.getCloseDate()));
-    accountDto.setOpenDate(new Date(account.getOpenDate()));
+    if(account.getCloseDate()!=null) {
+      accountDto.setCloseDate(new Date(account.getCloseDate()*1000L));
+    }
+    accountDto.setOpenDate(new Date(account.getOpenDate()*1000L));
     accountDto.setDeferment(account.getDeferment());
     accountDto.setShortcut();
     return accountDto;
