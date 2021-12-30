@@ -1,6 +1,8 @@
 server:
   port: 8081
-
+  address: "localhost"
+  servlet:
+    context-path: "/dm"
 datafiles:
   access2: "datafiles/access2.yml"
   access3: "datafiles/access3.yml"

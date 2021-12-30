@@ -46,7 +46,7 @@ public class ClientDto   {
     clientDto.setLastname(client.getLastname());
     clientDto.setFirstname(client.getFirstname());
     clientDto.setPatronymic(client.getPatronymic());
-    clientDto.setBirthDate(new Date(client.getBirthDate()));
+    clientDto.setBirthDate(new Date(client.getBirthDate()*1000L));
     clientDto.setPassportSeries(client.getPassportSeries());
     clientDto.setPassportNumber(client.getPassportNumber());
     clientDto.setInn(client.getInn());

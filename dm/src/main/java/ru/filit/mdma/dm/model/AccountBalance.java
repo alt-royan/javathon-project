@@ -12,13 +12,13 @@ import java.math.BigDecimal;
 @Data
 public class AccountBalance implements Serializable {
 
-  @NotNull
+
   private String accountNumber;
 
-  @NotNull
+
   private Long balanceDate;
 
-  @NotNull
+
   private BigDecimal amount;
 
 }

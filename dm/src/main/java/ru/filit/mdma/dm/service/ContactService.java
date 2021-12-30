@@ -29,12 +29,12 @@ public class ContactService {
         this.contactsFileUrl = getClass().getClassLoader().getResource(contactsFileName);
     }
 
-    public List<Contact> getClientContact(String clientId) throws IOException {
+    public List<Contact> getClientContacts(String clientId) throws IOException {
         List<Contact> contacts=yamlService.readYaml(contactsFileUrl, Contact.class);
         return contacts.stream().filter((c)-> c.getClientId().equals(clientId)).collect(Collectors.toList());
     }
 
-    public void saveContact(ContactDto contactDto) throws WrongDataException, IOException {
+    public Contact saveContact(ContactDto contactDto) throws WrongDataException, IOException {
         List<Contact> contacts=yamlService.readYaml(contactsFileUrl, Contact.class);
         if(contactDto.getId()!=null){
             Contact updatedContact = contacts.stream().filter((c)-> c.getId().equals(contactDto.getId()) &&
@@ -43,6 +43,7 @@ public class ContactService {
             updatedContact.setType(contactDto.getType());
             updatedContact.setValue(contactDto.getValue());
             yamlService.writeYaml(contactsFileUrl, contacts);
+            return updatedContact;
         }else{
             clientService.findClientById(contactDto.getClientId());
             Contact newContact=Contact.fromDto(contactDto);
@@ -51,6 +52,7 @@ public class ContactService {
             contacts.add(newContact);
             contacts.sort(Comparator.comparing(Contact::getClientId));
             yamlService.writeYaml(contactsFileUrl, contacts);
+            return newContact;
         }
     }
 

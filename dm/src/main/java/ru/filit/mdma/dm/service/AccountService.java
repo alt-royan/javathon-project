@@ -14,6 +14,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.net.URL;
 import java.util.Calendar;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -26,7 +27,7 @@ public class AccountService {
 
     private final URL balancesFileUrl;
 
-    public AccountService(@Value("${datafiles.accounts}") String accountsFileName, @Value("${datafiles.accounts}") String balancesFileName){
+    public AccountService(@Value("${datafiles.accounts}") String accountsFileName, @Value("${datafiles.balances}") String balancesFileName){
         this.accountsFileUrl = getClass().getClassLoader().getResource(accountsFileName);
         this.balancesFileUrl = getClass().getClassLoader().getResource(balancesFileName);
     }
@@ -49,16 +50,10 @@ public class AccountService {
 
     public BigDecimal getBalance(String accountNumber, Date date) throws IOException, WrongDataException {
         List<AccountBalance> balances = yamlService.readYaml(balancesFileUrl, AccountBalance.class);
-        Calendar c =Calendar.getInstance();
-        c.setTime(date);
-        AccountBalance currentMonthBalance =balances.stream().filter(b-> {
-            Calendar balanceDate= Calendar.getInstance();
-            balanceDate.setTimeInMillis(b.getBalanceDate());
-            return b.getAccountNumber().equals(accountNumber) &&
-                    c.get(Calendar.MONTH)==balanceDate.get(Calendar.MONTH);
-        }).findFirst().orElseThrow(()->new WrongDataException("Account number error"));
-        List<Operation> operations =operationService.getOperations(accountNumber, new Date(currentMonthBalance.getBalanceDate()), date);
-        BigDecimal currentBalance=currentMonthBalance.getAmount();
+        AccountBalance lastBalance =balances.stream().filter(b-> b.getAccountNumber().equals(accountNumber)).
+                max(Comparator.comparing(AccountBalance::getBalanceDate)).orElseThrow(()->new WrongDataException("Account number error"));
+        List<Operation> operations =operationService.getOperations(accountNumber, new Date(lastBalance.getBalanceDate()*1000L), date);
+        BigDecimal currentBalance=lastBalance.getAmount();
         for(Operation operation: operations){
             if(operation.getType()== Operation.TypeEnum.RECEIPT){
                 currentBalance=currentBalance.add(operation.getAmount());
@@ -79,8 +74,8 @@ public class AccountService {
         c.set(Calendar.HOUR, 23);
         c.set(Calendar.MINUTE, 59);
         int n=30;
-        if(c.getTimeInMillis()- ac.getOpenDate()< 1000L *60*60*24*30){
-            n = (int) ((c.getTimeInMillis()- ac.getOpenDate())/(1000L *60*60*24*30));
+        if(c.getTimeInMillis()- ac.getOpenDate()*1000L< 1000L *60*60*24*30){
+            n = (int) ((c.getTimeInMillis()- ac.getOpenDate()*1000L)/(1000L *60*60*24*30));
         }
         BigDecimal svo=new BigDecimal(0);
         for (int i = 0; i < n; i++) {
@@ -93,7 +88,7 @@ public class AccountService {
     public BigDecimal getOverdraft(String accountNumber) throws WrongDataException, IOException {
         Account account=getAccount(accountNumber);
         if(account.getType()!=Account.TypeEnum.OVERDRAFT) throw new WrongDataException("This account is not overdraft");
-        Date openDate =new Date(account.getOpenDate());
+        Date openDate =new Date(account.getOpenDate()*1000L);
         Calendar c=Calendar.getInstance();
         c.setTime(openDate);
         c.set(Calendar.HOUR, 23);
@@ -113,6 +108,7 @@ public class AccountService {
                     deferment= account.getDeferment();
                 }
             }
+            c.setTimeInMillis(c.getTimeInMillis()+1000L*60*60*24);
         }
         return percents;
     }

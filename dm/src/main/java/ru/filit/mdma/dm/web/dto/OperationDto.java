@@ -35,7 +35,7 @@ public class OperationDto   {
     OperationDto operationDto=new OperationDto();
     operationDto.setType(operation.getType());
     operationDto.setAccountNumber(operation.getAccountNumber());
-    operationDto.setOperDate(new Date(operation.getOperDate()));
+    operationDto.setOperDate(new Date(operation.getOperDate()*1000L));
     operationDto.setAmount(operation.getAmount());
     operationDto.setDescription(operation.getDescription());
     return operationDto;

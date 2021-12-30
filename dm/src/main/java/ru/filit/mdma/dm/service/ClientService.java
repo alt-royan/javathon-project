@@ -7,6 +7,7 @@ import ru.filit.mdma.dm.exception.WrongDataException;
 import ru.filit.mdma.dm.model.Account;
 import ru.filit.mdma.dm.model.Client;
 import ru.filit.mdma.dm.model.ClientLevel;
+import ru.filit.mdma.dm.web.dto.ClientLevelDto;
 import ru.filit.mdma.dm.web.dto.ClientSearchDto;
 
 import java.io.File;
@@ -14,10 +15,7 @@ import java.io.IOException;
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -44,23 +42,24 @@ public class ClientService {
     public List<Client> findClients(ClientSearchDto client) throws IOException {
         List<Client> clients =yamlService.readYaml(clientsFileUrl, Client.class);
         return clients.stream().filter((c)->
-                c.getId().equals(client.getId()) &&
-                c.getLastname().equals(client.getLastname()) &&
-                c.getFirstname().equals(client.getFirstname()) &&
-                c.getPatronymic().equals(client.getPatronymic()) &&
-                c.getBirthDate()==client.getBirthDate().getTime() &&
-                client.getPassport().equals(c.getPassportSeries()+" "+c.getPassportNumber()) &&
-                c.getInn().equals(client.getInn())
+                (client.getId()==null || c.getId().equals(client.getId())) &&
+                        (client.getLastname()==null || c.getLastname().equals(client.getLastname())) &&
+                        (client.getFirstname()==null || c.getFirstname().equals(client.getFirstname()) ) &&
+                        (client.getPatronymic()==null || c.getPatronymic().equals(client.getPatronymic())) &&
+                        (client.getBirthDate()==null || c.getBirthDate()*1000L==client.getBirthDate().getTime()) &&
+                        (client.getPassport()==null || client.getPassport().equals(c.getPassportSeries()+" "+c.getPassportNumber())) &&
+                        ( client.getInn()==null || c.getInn().equals(client.getInn()))
         ).collect(Collectors.toList());
     }
 
-    public ClientLevel calculateClientLevel(String id) throws IOException, WrongDataException, NullPointerException {
+    public ClientLevelDto calculateClientLevel(String id) throws IOException, WrongDataException, NullPointerException {
         List<Account> clientAccounts = accountService.getAccounts(id);
-        List<BigDecimal> svos=new ArrayList<>();
+        Map<String,BigDecimal> svos=new HashMap<>();
         for (Account a: clientAccounts) {
-            svos.add(accountService.getSVO(a.getNumber()));
+            svos.put(a.getNumber(), accountService.getSVO(a.getNumber()));
         }
-        BigDecimal maxSvo= svos.stream().max(BigDecimal::compareTo).orElseThrow(()->new NullPointerException("No accounts"));
+        BigDecimal maxSvo= Collections.max(svos.entrySet(), Map.Entry.comparingByValue()).getValue();
+        String bestAccountNumber= Collections.max(svos.entrySet(), Map.Entry.comparingByValue()).getKey();
         ClientLevel cl=ClientLevel.Low;
         if(maxSvo.doubleValue()<30000){
             cl=ClientLevel.Low;
@@ -71,7 +70,11 @@ public class ClientService {
         }else if (maxSvo.doubleValue() >=1000000 ){
             cl=ClientLevel.Gold;
         }
-        return cl;
+        ClientLevelDto clientLevelDto=new ClientLevelDto();
+        clientLevelDto.setLevel(cl);
+        clientLevelDto.setAccountNumber(bestAccountNumber);
+        clientLevelDto.setAvgBalance(maxSvo);
+        return clientLevelDto;
     }
     
 }
