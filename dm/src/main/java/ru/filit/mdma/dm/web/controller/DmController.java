@@ -74,7 +74,7 @@ public class DmController {
 
     //Получение процентов по кредиту
     @PostMapping("/client/account/loan-payment")
-    public LoanPaymentDto clientLevel(@RequestBody @Valid AccountNumberDto accountNumber) throws WrongDataException, IOException {
+    public LoanPaymentDto clientLevel(@Valid @RequestBody AccountNumberDto accountNumber) throws WrongDataException, IOException {
         return new LoanPaymentDto(accountService.getOverdraft(accountNumber.getAccountNumber()));
     }
 
