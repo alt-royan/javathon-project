@@ -1,9 +1,11 @@
-package ru.filit.mdma.dm.web.dto;
+package ru.filit.mdma.dms.web.dto;
 
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
+
 
 
 /**
@@ -12,6 +14,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @AllArgsConstructor
+@NoArgsConstructor
 public class AccessDto  {
 
   private String entity;

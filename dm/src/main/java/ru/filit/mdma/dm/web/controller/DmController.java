@@ -6,10 +6,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.filit.mdma.dm.exception.WrongDataException;
-import ru.filit.mdma.dm.service.AccountService;
-import ru.filit.mdma.dm.service.ClientService;
-import ru.filit.mdma.dm.service.ContactService;
-import ru.filit.mdma.dm.service.OperationService;
+import ru.filit.mdma.dm.service.*;
 import ru.filit.mdma.dm.web.dto.*;
 
 import javax.validation.Valid;
@@ -28,6 +25,9 @@ public class DmController {
     private AccountService accountService;
     @Autowired
     private OperationService operationService;
+
+    @Autowired
+    private AccessService accessService;
 
     //Поиск клиента по параметрам
     @PostMapping("/client")
@@ -76,6 +76,12 @@ public class DmController {
     @PostMapping("/client/account/loan-payment")
     public LoanPaymentDto clientLevel(@Valid @RequestBody AccountNumberDto accountNumber) throws WrongDataException, IOException {
         return new LoanPaymentDto(accountService.getOverdraft(accountNumber.getAccountNumber()));
+    }
+
+    //Получение прав доступа для роли
+    @PostMapping("/access")
+    public List<AccessDto> getAccess(@RequestBody AccessRequestDto accessRequestDto) throws WrongDataException, IOException {
+        return accessService.getAccess(accessRequestDto);
     }
 
 }

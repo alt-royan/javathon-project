@@ -1,17 +1,15 @@
-package ru.filit.mdma.crm.service;
+package ru.filit.mdma.dms.service;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
-import ru.filit.mdma.crm.web.dto.*;
+import ru.filit.mdma.dms.exception.ClientException;
+import ru.filit.mdma.dms.web.dto.*;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
-import java.util.Objects;
 
 
 @Component
@@ -29,15 +27,14 @@ public class DmClient {
     private final String saveContactUrl="/client/contact/save";
     private final String getLevelUrl="/client/level";
     private final String getOverdraftUrl="/client/account/loan-payment";
+    private final String getAccessUrl="/access";
 
     public DmClient(@Value("${system.element.dm.host}") String host, @Value("${system.element.dm.port}") String port){
         dmRequest="http://"+host+":"+port+"/dm";
     }
 
-    private <T> HttpEntity<T> createHttpEntity(T body, Collection<? extends GrantedAuthority> authorities) throws ClientException {
+    private <T> HttpEntity<T> createHttpEntity(T body) {
         HttpHeaders headers = new HttpHeaders();
-        headers.add("CRM-User-Role", authorities.stream().findFirst().
-                orElseThrow(()-> new ClientException(HttpStatus.UNAUTHORIZED, "Client hasn't got authorities")).toString());
         headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<T> entity = new HttpEntity<>(body, headers);
         return entity;
@@ -46,8 +43,8 @@ public class DmClient {
     /**
      * Запрос поиска клиентов по фильтру
      */
-    public List<ClientDto> searchClients(ClientSearchDto clientSearchDto, Collection<? extends GrantedAuthority> authorities) throws ClientException {
-        HttpEntity<ClientSearchDto> entity = createHttpEntity(clientSearchDto, authorities);
+    public List<ClientDto> searchClients(ClientSearchDto clientSearchDto) throws ClientException {
+        HttpEntity<ClientSearchDto> entity = createHttpEntity(clientSearchDto);
         try {
             ResponseEntity<ClientDto[]> response = restTemplate.postForEntity(dmRequest+searchClientsUrl, entity, ClientDto[].class);
             return Arrays.asList(response.getBody());
@@ -59,8 +56,8 @@ public class DmClient {
     /**
      * Запрос контактов клиента
      */
-    public List<ContactDto> getContacts(ClientIdDto clientIdDto, Collection<? extends GrantedAuthority> authorities) throws ClientException {
-        HttpEntity<ClientIdDto> entity = createHttpEntity(clientIdDto, authorities);
+    public List<ContactDto> getContacts(ClientIdDto clientIdDto) throws ClientException {
+        HttpEntity<ClientIdDto> entity = createHttpEntity(clientIdDto);
         try {
             ResponseEntity<ContactDto[]> response = restTemplate.postForEntity(dmRequest+getContactsUrl, entity, ContactDto[].class);
             return Arrays.asList(response.getBody());
@@ -72,8 +69,8 @@ public class DmClient {
     /**
      * Запрос счетов клиента
      */
-    public List<AccountDto> getAccounts(ClientIdDto clientIdDto, Collection<? extends GrantedAuthority> authorities) throws ClientException {
-        HttpEntity<ClientIdDto> entity = createHttpEntity(clientIdDto, authorities);
+    public List<AccountDto> getAccounts(ClientIdDto clientIdDto) throws ClientException {
+        HttpEntity<ClientIdDto> entity = createHttpEntity(clientIdDto);
         try {
             ResponseEntity<AccountDto[]> response = restTemplate.postForEntity(dmRequest+getAccountsUrl, entity, AccountDto[].class);
             return Arrays.asList(response.getBody());
@@ -85,8 +82,8 @@ public class DmClient {
     /**
      * Запрос баланса по счёту
      */
-    public CurrentBalanceDto getBalance(AccountNumberDto accountNumberDto, Collection<? extends GrantedAuthority> authorities) throws ClientException {
-        HttpEntity<AccountNumberDto> entity = createHttpEntity(accountNumberDto, authorities);
+    public CurrentBalanceDto getBalance(AccountNumberDto accountNumberDto) throws ClientException {
+        HttpEntity<AccountNumberDto> entity = createHttpEntity(accountNumberDto);
         try {
             ResponseEntity<CurrentBalanceDto> response = restTemplate.postForEntity(dmRequest+getBalanceUrl, entity, CurrentBalanceDto.class);
             return response.getBody();
@@ -98,8 +95,8 @@ public class DmClient {
     /**
      * Запрос операций по счету
      */
-    public List<OperationDto> getOperations(OperationSearchDto operationSearchDto, Collection<? extends GrantedAuthority> authorities) throws ClientException {
-        HttpEntity<OperationSearchDto> entity = createHttpEntity(operationSearchDto, authorities);
+    public List<OperationDto> getOperations(OperationSearchDto operationSearchDto) throws ClientException {
+        HttpEntity<OperationSearchDto> entity = createHttpEntity(operationSearchDto);
         try {
             ResponseEntity<OperationDto[]> response = restTemplate.postForEntity(dmRequest+getOperationsUrl, entity, OperationDto[].class);
             return Arrays.asList(response.getBody());
@@ -111,8 +108,8 @@ public class DmClient {
     /**
      * Сохранение контакта клиента
      */
-    public ContactDto saveContact(ContactDto contactDto, Collection<? extends GrantedAuthority> authorities) throws ClientException {
-        HttpEntity<ContactDto> entity = createHttpEntity(contactDto, authorities);
+    public ContactDto saveContact(ContactDto contactDto) throws ClientException {
+        HttpEntity<ContactDto> entity = createHttpEntity(contactDto);
         try {
             ResponseEntity<ContactDto> response = restTemplate.postForEntity(dmRequest+saveContactUrl, entity, ContactDto.class);
             return response.getBody();
@@ -124,8 +121,8 @@ public class DmClient {
     /**
      * Получение уровня клиента
      */
-    public ClientLevelDto getClientLevel(ClientIdDto clientIdDto,Collection<? extends GrantedAuthority> authorities) throws ClientException {
-        HttpEntity<ClientIdDto> entity = createHttpEntity(clientIdDto, authorities);
+    public ClientLevelDto getClientLevel(ClientIdDto clientIdDto) throws ClientException {
+        HttpEntity<ClientIdDto> entity = createHttpEntity(clientIdDto);
         try {
             ResponseEntity<ClientLevelDto> response = restTemplate.postForEntity(dmRequest+getLevelUrl, entity, ClientLevelDto.class);
             return response.getBody();
@@ -137,11 +134,24 @@ public class DmClient {
     /**
      * Получение суммы процентных платежей по счету Овердрафт
      */
-    public LoanPaymentDto getOverdraft(AccountNumberDto accountNumberDto, Collection<? extends GrantedAuthority> authorities) throws ClientException {
-        HttpEntity<AccountNumberDto> entity = createHttpEntity(accountNumberDto, authorities);
+    public LoanPaymentDto getOverdraft(AccountNumberDto accountNumberDto) throws ClientException {
+        HttpEntity<AccountNumberDto> entity = createHttpEntity(accountNumberDto);
         try {
             ResponseEntity<LoanPaymentDto> response = restTemplate.postForEntity(dmRequest+getOverdraftUrl, entity, LoanPaymentDto.class);
             return response.getBody();
+        } catch(HttpStatusCodeException e) {
+            throw new ClientException(e.getStatusCode(), e.getResponseBodyAsString());
+        }
+    }
+
+    /**
+     * Получение прав доступа
+     */
+    public List<AccessDto> getAccess(AccessRequestDto accessRequestDto) throws ClientException {
+        HttpEntity<AccessRequestDto> entity = createHttpEntity(accessRequestDto);
+        try {
+            ResponseEntity<AccessDto[]> response = restTemplate.postForEntity(dmRequest+getAccessUrl, entity, AccessDto[].class);
+            return Arrays.asList(response.getBody());
         } catch(HttpStatusCodeException e) {
             throw new ClientException(e.getStatusCode(), e.getResponseBodyAsString());
         }

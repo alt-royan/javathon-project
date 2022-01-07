@@ -8,6 +8,7 @@ import ru.filit.mdma.dm.model.Account;
 import ru.filit.mdma.dm.model.AccountBalance;
 import ru.filit.mdma.dm.model.ClientLevel;
 import ru.filit.mdma.dm.model.Operation;
+import ru.filit.mdma.dm.web.dto.AccessDto;
 
 import java.io.IOException;
 import java.math.BigDecimal;
