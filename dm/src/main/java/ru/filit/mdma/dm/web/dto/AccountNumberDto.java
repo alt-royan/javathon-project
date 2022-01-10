@@ -3,6 +3,7 @@ package ru.filit.mdma.dm.web.dto;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.validation.annotation.Validated;
 
 
 import javax.validation.constraints.*;
@@ -14,7 +15,7 @@ import javax.validation.constraints.*;
 @Setter
 public class AccountNumberDto   {
 
-  @NotNull
+  @NotBlank
   private String accountNumber;
 
 }
