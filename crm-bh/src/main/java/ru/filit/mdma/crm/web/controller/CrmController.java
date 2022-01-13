@@ -2,6 +2,7 @@ package ru.filit.mdma.crm.web.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -10,6 +11,7 @@ import ru.filit.mdma.crm.service.ClientException;
 import ru.filit.mdma.crm.service.CrmService;
 import ru.filit.mdma.crm.web.dto.*;
 
+import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -24,7 +26,8 @@ public class CrmController {
      */
     @PostMapping("client/find")
     public List<ClientDto> searchClients(@RequestBody ClientSearchDto client, Authentication authentication) throws ClientException {
-        return crmService.searchClients(client, authentication.getAuthorities());
+        UserDetails userDetails=(UserDetails) authentication.getPrincipal();
+        return crmService.searchClients(client, userDetails);
     }
 
     /**
@@ -32,7 +35,8 @@ public class CrmController {
      */
     @PostMapping("/client")
     public ClientInfoDto getClientInfo(@RequestBody ClientIdDto id,Authentication authentication) throws ClientException {
-        return crmService.getClientInfo(id,authentication.getAuthorities());
+        UserDetails userDetails=(UserDetails) authentication.getPrincipal();
+        return crmService.getClientInfo(id, userDetails);
     }
 
     /**
@@ -40,7 +44,8 @@ public class CrmController {
      */
     @PostMapping("/client/account/last-operations")
     public List<OperationDto> getOperations(@RequestBody AccountNumberDto accountNumber,Authentication authentication) throws ClientException {
-        return crmService.getLastOperations(accountNumber ,3,authentication.getAuthorities());
+        UserDetails userDetails=(UserDetails) authentication.getPrincipal();
+        return crmService.getLastOperations(accountNumber ,3, userDetails);
     }
 
     /**
@@ -48,7 +53,8 @@ public class CrmController {
      */
     @PostMapping("/client/contact/save")
     public ContactDto saveContact(@RequestBody ContactDto contact,Authentication authentication) throws ClientException {
-        return crmService.saveContact(contact,authentication.getAuthorities());
+        UserDetails userDetails=(UserDetails) authentication.getPrincipal();
+        return crmService.saveContact(contact, userDetails);
     }
 
     /**
@@ -56,7 +62,8 @@ public class CrmController {
      */
     @PostMapping("/client/level")
     public ClientLevelDto getClientLevel(@RequestBody ClientIdDto id,Authentication authentication) throws ClientException {
-        return crmService.getClientLevel(id, authentication.getAuthorities());
+        UserDetails userDetails=(UserDetails) authentication.getPrincipal();
+        return crmService.getClientLevel(id, userDetails);
     }
 
     /**
@@ -64,7 +71,8 @@ public class CrmController {
      */
     @PostMapping("/client/account/loan-payment")
     public LoanPaymentDto getOverdraft(@RequestBody AccountNumberDto accountNumber,Authentication authentication) throws ClientException {
-        return crmService.getOverdraft(accountNumber, authentication.getAuthorities());
+        UserDetails userDetails=(UserDetails) authentication.getPrincipal();
+        return crmService.getOverdraft(accountNumber, userDetails);
     }
 
 

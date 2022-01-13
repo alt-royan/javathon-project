@@ -11,7 +11,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class ClientLevelDto {
+public class ClientLevelDto implements Cloneable{
 
 
   private String level;

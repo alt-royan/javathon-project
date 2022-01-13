@@ -11,7 +11,7 @@ import javax.validation.constraints.NotNull;
  */
 @Getter
 @Setter
-public class AccountNumberDto {
+public class AccountNumberDto implements Cloneable{
 
   @NotNull
   private String accountNumber;

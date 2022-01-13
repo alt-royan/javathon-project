@@ -10,7 +10,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class CurrentBalanceDto   {
+public class CurrentBalanceDto   implements Cloneable{
 
   private String balanceAmount;
 

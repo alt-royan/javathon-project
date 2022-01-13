@@ -11,7 +11,7 @@ import lombok.Setter;
 @Setter
 @Getter
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class OperationDto {
+public class OperationDto implements Cloneable{
 
   private String type;
 

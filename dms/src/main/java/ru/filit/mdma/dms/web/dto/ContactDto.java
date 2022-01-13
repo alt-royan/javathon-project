@@ -14,7 +14,7 @@ import javax.validation.constraints.NotNull;
 @Getter
 @Setter
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ContactDto {
+public class ContactDto implements Cloneable{
 
   private String id;
 

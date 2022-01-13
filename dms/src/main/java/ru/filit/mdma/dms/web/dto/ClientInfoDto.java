@@ -10,7 +10,7 @@ import java.util.List;
 @Getter
 @Setter
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ClientInfoDto {
+public class ClientInfoDto implements Cloneable{
 
     private String id;
 
