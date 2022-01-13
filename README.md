@@ -7,3 +7,4 @@
 ### Технологический стек, рекомендованный к использованию
 
 Java 11, Spring Framework 5 (MVC, REST, Security), Spring Boot 2, YAML as database, Apache Ignite, Apache Kafka, Gradle / Maven, RegExp, JSON, HTTP Base Authentication, Open API Specification, MapStruct
+ТЗ здесь: https://docs.google.com/document/d/1JlZV-hPHTJVLBdOvSJLGvDeBtpZoyvv-/edit?usp=sharing&ouid=104914186025961963864&rtpof=true&sd=true
