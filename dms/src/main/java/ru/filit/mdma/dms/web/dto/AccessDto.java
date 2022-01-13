@@ -16,7 +16,7 @@ import java.util.Objects;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class AccessDto  {
+public class AccessDto  implements Cloneable{
 
   private String entity;
 
@@ -34,5 +34,6 @@ public class AccessDto  {
   public int hashCode() {
     return Objects.hash(entity, property);
   }
+
 }
 

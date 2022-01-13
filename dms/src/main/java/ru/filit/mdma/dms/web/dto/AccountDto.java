@@ -12,7 +12,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class AccountDto   {
+public class AccountDto  implements Cloneable {
 
   private String number;
 

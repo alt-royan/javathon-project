@@ -16,7 +16,7 @@ import javax.validation.constraints.NotNull;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class ClientIdDto {
+public class ClientIdDto implements Cloneable{
 
   @NotNull
   private String clientId;

@@ -13,7 +13,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ClientSearchDto {
+public class ClientSearchDto implements Cloneable{
 
   private String id;
 

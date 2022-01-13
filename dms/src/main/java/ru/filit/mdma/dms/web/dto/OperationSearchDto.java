@@ -12,7 +12,7 @@ import javax.validation.constraints.NotNull;
  */
 @Getter
 @Setter
-public class OperationSearchDto {
+public class OperationSearchDto implements Cloneable{
 
   @NotNull
   private String accountNumber;

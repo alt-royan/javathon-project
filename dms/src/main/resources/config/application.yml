@@ -9,5 +9,5 @@ system:
       host: "localhost"
       port: "8082"
     queue:
-      host:
-      port:
+      host: "localhost"
+      port: "9092"

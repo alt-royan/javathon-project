@@ -11,7 +11,7 @@ import java.math.BigDecimal;
  */
 @Setter
 @Getter
-public class LoanPaymentDto {
+public class LoanPaymentDto implements Cloneable{
 
   private BigDecimal amount;
 

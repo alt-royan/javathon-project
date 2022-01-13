@@ -2,11 +2,16 @@ package ru.filit.mdma.dms.service;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import ru.filit.mdma.dms.exception.ClientException;
 import ru.filit.mdma.dms.exception.WrongDataException;
+import ru.filit.mdma.dms.model.Role;
 import ru.filit.mdma.dms.web.dto.*;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.util.LinkedList;
 import java.util.List;
 
 @Component
@@ -14,9 +19,19 @@ public class Masking {
 
     private Logger logger = LoggerFactory.getLogger(Masking.class);
 
+    @Autowired
+    private DmsService dmsService;
 
-    public void maskObject(Object object, List<AccessDto> accessList) throws WrongDataException {
-        Field[] fields = object.getClass().getDeclaredFields();
+    public <T> T maskObject(T object, Role role) throws WrongDataException, ClientException {
+
+        T newObject= null;
+        try {
+            newObject = (T) object.getClass().getDeclaredConstructor().newInstance();
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+            throw new WrongDataException("Can't mask");
+        }
+        List<AccessDto> accessList=dmsService.getAccess(role);
+        Field[] fields = newObject.getClass().getDeclaredFields();
         String entityName;
         if(object instanceof AccountDto){
             entityName="account";
@@ -37,14 +52,26 @@ public class Masking {
             throw new WrongDataException("Wrong entity name");
         }
         for (Field field:fields){
+            field.setAccessible(true);
             try {
                 if (!accessList.contains(new AccessDto(entityName, field.getName()))) {
-                    field.setAccessible(true);
-                    field.set(object, "****");
+                    field.set(newObject, "****");
+                }else {
+                    field.set(newObject, field.get(object));
                 }
             } catch (IllegalAccessException e) {
                 throw new WrongDataException(e.getMessage());
             }
+            field.setAccessible(false);
         }
+        return newObject;
+    }
+
+    public <T> List<T> maskListOfObjects(List<T> list, Role role) throws WrongDataException, ClientException {
+        List<T> newList=new LinkedList<>();
+        for (T o : list) {
+            newList.add(maskObject(o, role));
+        }
+        return newList;
     }
 }

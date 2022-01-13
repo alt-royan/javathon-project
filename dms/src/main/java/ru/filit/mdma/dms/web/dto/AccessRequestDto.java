@@ -13,7 +13,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class AccessRequestDto   {
+public class AccessRequestDto implements Cloneable  {
 
   private String role;
 
